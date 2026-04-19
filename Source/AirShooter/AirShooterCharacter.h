@@ -51,6 +51,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	class UAirAttributes* AirAttributes;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team", meta = (ExposeOnSpawn = "true"))
+	uint8 TeamByte = 0;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
 	EGameplayEffectReplicationMode ASCReplicationMode = EGameplayEffectReplicationMode::Mixed;
