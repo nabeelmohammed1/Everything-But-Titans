@@ -8,9 +8,8 @@
 #include "AirAttributes.h"
 #include "AS_GameplayAbility.generated.h"
 
-/**
- * 
- */
+class AAirShooterCharacter;
+
 UCLASS()
 class AIRSHOOTER_API UAS_GameplayAbility : public UGameplayAbility
 {
@@ -27,5 +26,9 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Ability|Helpers")
 	float GetAttributeValue(FGameplayAttribute Attribute) const;
+
+	UFUNCTION(BlueprintPure, Category = "Ability|Helpers")
+	AAirShooterCharacter* GetOwningCharacter() const;
+
 };
 

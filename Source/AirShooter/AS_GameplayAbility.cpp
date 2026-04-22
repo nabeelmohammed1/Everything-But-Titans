@@ -4,6 +4,7 @@
 #include "AS_GameplayAbility.h"
 #include "GameFramework/Character.h"
 #include "AS_AbilitySystemComp.h"
+#include "AirShooterCharacter.h"
 
 UCharacterMovementComponent* UAS_GameplayAbility::GetCharacterMovement() const
 {
@@ -27,4 +28,13 @@ float UAS_GameplayAbility::GetAttributeValue(FGameplayAttribute Attribute) const
         return ASC->GetNumericAttribute(Attribute);
     }
 	return 0.f;
+}
+
+AAirShooterCharacter* UAS_GameplayAbility::GetOwningCharacter() const
+{
+    if (const FGameplayAbilityActorInfo* Info = CurrentActorInfo)
+    {
+        return Cast<AAirShooterCharacter>(Info->AvatarActor.Get());
+    }
+    return nullptr;
 }
