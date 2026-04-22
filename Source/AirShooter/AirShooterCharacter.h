@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team", meta = (ExposeOnSpawn = "true"))
 	uint8 TeamByte = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
+	FText PlayerName = FText::FromString("Player");
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
 	EGameplayEffectReplicationMode ASCReplicationMode = EGameplayEffectReplicationMode::Mixed;
