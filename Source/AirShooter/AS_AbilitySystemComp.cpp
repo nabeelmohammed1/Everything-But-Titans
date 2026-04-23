@@ -8,6 +8,8 @@ UAS_AbilitySystemComp::UAS_AbilitySystemComp()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicated(true);
+	// Add this line to fix client-side tag/effect sync for players
+	SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 }
 
 void UAS_AbilitySystemComp::BeginPlay()
