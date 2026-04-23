@@ -99,7 +99,7 @@ void AAirShooterCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->RefreshAbilityActorInfo();
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 }
 
