@@ -18,26 +18,26 @@ class AIRSHOOTER_API UAirAttributes : public UAttributeSet
 public:	
 	UAirAttributes();
 	//Health Attribute
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_Health)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, Health);
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, MaxHealth);
 
 	//Stamina Attribute
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_Stamina)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Stamina)
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, Stamina);
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_MaxStamina)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxStamina)
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, MaxStamina);
 
 	//Shield Attribute
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_Shield)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Shield)
 	FGameplayAttributeData Shield;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, Shield);
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", Replicated = OnRep_MaxShield)
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxShield)
 	FGameplayAttributeData MaxShield;
 	ATTRIBUTE_ACCESSORS_BASIC(UAirAttributes, MaxShield);
 
