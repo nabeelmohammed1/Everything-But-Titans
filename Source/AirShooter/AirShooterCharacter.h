@@ -51,7 +51,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	class UAirAttributes* AirAttributes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team", Replicated ,meta = (ExposeOnSpawn = "true"))
 	uint8 TeamByte = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
@@ -81,6 +81,8 @@ public:
 	// IAbilitySystemInterface implementation
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "GAS")
 	void GrantStartingAbilities();

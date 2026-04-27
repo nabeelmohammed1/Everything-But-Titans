@@ -7,6 +7,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AAirShooterCharacter::AAirShooterCharacter()
@@ -159,4 +160,10 @@ void AAirShooterCharacter::SendAbilitiesChangedEvent()
 void AAirShooterCharacter::ServerSendGameplayEventToSelf_Implementation(FGameplayEventData EventData)
 {
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventData.EventTag, EventData);
+}
+
+void AAirShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AAirShooterCharacter, TeamByte);
 }
