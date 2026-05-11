@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Components/WidgetComponent.h"
 #include "AirShooterCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -21,6 +22,8 @@ enum class EAirAbilityInputID : uint8
 	Sprint,
 	Slide,
 	WallRun,
+	Flash,
+	Nade,
 };
 
 USTRUCT(BlueprintType)
@@ -57,12 +60,45 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
 	FText PlayerName = FText::FromString("Player");
 
+	//UI Related properties
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	UWidgetComponent* NameplateWidgetComponent;
+
+	/**
+	 * How far away (in cm) another player can be before their nameplate is
+	 * automatically hidden, even if they are technically visible.
+	 * Default: 5000 cm (50 m). Tweak per-character in BP.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float NameplateMaxDistance = 5000.0f;
+
+	//How often to check for visiblity
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float NameplateCheckInterval = 0.5f;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
 	EGameplayEffectReplicationMode ASCReplicationMode = EGameplayEffectReplicationMode::Mixed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
 	TArray<FStartingAbilityInfo> StartingAbilities;
+
+	//Nameplate related Functions
+
+	/** Cached list of other players — refreshed every few seconds. */
+	UPROPERTY()
+	TArray<AAirShooterCharacter*> CachedOtherPlayers;
+
+	FTimerHandle NameplateCheckTimerHandle;
+	FTimerHandle PlayerCacheRefreshTimerHandle;
+
+	/** Rebuilds CachedOtherPlayers. Called on a slow (5 s) timer. */
+	void RefreshPlayerCache();
+
+	/** Main per-interval visibility update. Only runs on the local client. */
+	void UpdateNameplateVisibility();
 
 
 protected:
