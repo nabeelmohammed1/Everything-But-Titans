@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AirShooterCharacter.h"
@@ -66,40 +66,64 @@ void AAirShooterCharacter::BeginPlay()
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 
-	// Nameplate system only makes sense on the local client.
-	// IsLocallyControlled() returns false on the server and on other clients'
-	// versions of this pawn, so this guard keeps the timers client-only.
-	if (IsLocallyControlled())
-	{
-		// Stagger start time slightly so all players don't fire at the same frame.
-		const float RandomOffset = FMath::RandRange(0.f, NameplateCheckInterval);
-
-		// Fast timer � drives the actual show/hide logic.
-		GetWorldTimerManager().SetTimer(
-			NameplateCheckTimerHandle,
-			this,
-			&AAirShooterCharacter::UpdateNameplateVisibility,
-			NameplateCheckInterval,
-			true,          // looping
-			RandomOffset   // initial delay
-		);
-
-		// Slow timer � rebuilds the cached player list every 5 seconds.
-		// This avoids iterating all world actors on every visibility check.
-		GetWorldTimerManager().SetTimer(
-			PlayerCacheRefreshTimerHandle,
-			this,
-			&AAirShooterCharacter::RefreshPlayerCache,
-			5.f,
-			true,
-			0.f // run immediately so cache is populated before first check
-		);
-	}
-	
+		// NOTE: Nameplate timers are intentionally NOT started here anymore.
+	//
+	// The root cause of the host-can't-see-nameplates bug was that BeginPlay
+	// fires before the pawn is fully possessed. On a listen server the host's
+	// GetController() can still be null at BeginPlay time, so the very first
+	// UpdateNameplateVisibility call bails out immediately (LocalPC == null)
+	// and the widget is never shown.
+	//
+	// Timers are now started in:
+	//   - PossessedBy()     → covers the listen-server host (and solo play)
+	//   - OnRep_PlayerState → covers all remote clients
+	// Both of those callbacks are guaranteed to fire after the controller
+	// is fully set up, so GetController() is always valid when the first
+	// timer tick runs.
 }
 
 // ============================================================================
-//  Nameplate � Cache Refresh  (runs every 5 s, local client only)
+//  Nameplate – Timer Startup
+// ============================================================================
+
+void AAirShooterCharacter::StartNameplateTimers()
+{
+	// Guard: only the local client (or listen-server host acting as a client)
+	// should run these timers. Dedicated server has no viewport to check against.
+	// Also guard against double-registration if both PossessedBy and
+	// OnRep_PlayerState fire on the same actor (can happen in edge cases).
+	if (!IsLocallyControlled() || bNameplateTimerStarted) return;
+	if (GetNetMode() == NM_DedicatedServer) return;
+
+	bNameplateTimerStarted = true;
+
+	// Stagger start time slightly so all players don't fire at the same frame.
+	const float RandomOffset = FMath::RandRange(0.f, NameplateCheckInterval);
+
+	// Fast timer – drives the actual show/hide logic.
+	GetWorldTimerManager().SetTimer(
+		NameplateCheckTimerHandle,
+		this,
+		&AAirShooterCharacter::UpdateNameplateVisibility,
+		NameplateCheckInterval,
+		true,          // looping
+		RandomOffset   // initial delay
+	);
+
+	// Slow timer – rebuilds the cached player list every 5 seconds.
+	// This avoids iterating all world actors on every visibility check.
+	GetWorldTimerManager().SetTimer(
+		PlayerCacheRefreshTimerHandle,
+		this,
+		&AAirShooterCharacter::RefreshPlayerCache,
+		5.f,
+		true,
+		0.f // run immediately so cache is populated before first check
+	);
+}
+
+// ============================================================================
+//  Nameplate — Cache Refresh  (runs every 5 s, local client only)
 // ============================================================================
 
 void AAirShooterCharacter::RefreshPlayerCache()
@@ -116,19 +140,30 @@ void AAirShooterCharacter::RefreshPlayerCache()
 }
 
 // ============================================================================
-//  Nameplate � Visibility Update  (runs every NameplateCheckInterval, local client only)
+//  Nameplate — Visibility Update  (runs every NameplateCheckInterval, local client only)
 // ============================================================================
 
 void AAirShooterCharacter::UpdateNameplateVisibility()
 {
 	if (!IsLocallyControlled()) return;
 
-	// KEY FIX: Use GetController() cast to APlayerController rather than
+	// Use GetController() cast to APlayerController rather than
 	// GetFirstPlayerController(). GetFirstPlayerController() always returns
 	// the host's controller, which breaks visibility for every client on a
 	// listen server. GetController() always returns THIS pawn's own controller.
+	//
+	// Because timers now start from PossessedBy/OnRep_PlayerState (not
+	// BeginPlay), GetController() is guaranteed to be valid here. The null
+	// check below is just a safety net for unexpected edge cases.
 	APlayerController* LocalPC = Cast<APlayerController>(GetController());
-	if (!LocalPC) return;
+	if (!LocalPC)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Nameplate] %s: LocalPC is null in UpdateNameplateVisibility – skipping. "
+				"This should not happen since timers start post-possession."),
+			*GetName());
+		return;
+	}
 
 	FVector  CameraLocation;
 	FRotator CameraRotation;
@@ -226,6 +261,12 @@ void AAirShooterCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent->InitAbilityActorInfo(this,this);
 		GrantStartingAbilities();
 	}
+
+	// Start nameplate timers here for the listen-server host (and solo play).
+	// PossessedBy fires server-side only, and on a listen server the host is
+	// both server and local client, so IsLocallyControlled() is true here for
+	// the host's own pawn. The controller is fully valid at this point.
+	StartNameplateTimers();
 }
 
 void AAirShooterCharacter::OnRep_PlayerState()
@@ -235,6 +276,12 @@ void AAirShooterCharacter::OnRep_PlayerState()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
+
+	// Start nameplate timers here for the listen-server host (and solo play).
+	// PossessedBy fires server-side only, and on a listen server the host is
+	// both server and local client, so IsLocallyControlled() is true here for
+	// the host's own pawn. The controller is fully valid at this point.
+	StartNameplateTimers();
 }
 
 UAbilitySystemComponent* AAirShooterCharacter::GetAbilitySystemComponent() const

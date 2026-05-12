@@ -94,11 +94,25 @@ protected:
 	FTimerHandle NameplateCheckTimerHandle;
 	FTimerHandle PlayerCacheRefreshTimerHandle;
 
+
+	//Tracking if timer has started since we are calling it in 2 places.
+	bool bNameplateTimerStarted = false;
+
 	/** Rebuilds CachedOtherPlayers. Called on a slow (5 s) timer. */
 	void RefreshPlayerCache();
 
 	/** Main per-interval visibility update. Only runs on the local client. */
 	void UpdateNameplateVisibility();
+
+	/**
+	 * Starts the nameplate check and cache-refresh timers.
+	 * Called from PossessedBy (covers the listen-server host) and from
+	 * OnRep_PlayerState (covers all remote clients). This ensures the
+	 * controller is fully valid before the first timer fires.
+	 * Safe to call multiple times – guarded by bNameplateTimersStarted.
+	 */
+
+	void StartNameplateTimers();
 
 
 protected:
