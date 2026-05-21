@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	bool ShouldShowInAbilitiesBar = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	bool ShouldShowInHud = false;
+
 
 protected:
 	UFUNCTION(BlueprintPure, Category = "Ability|Helpers")
