@@ -36,6 +36,8 @@ void USpectatorHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	}
 
 	OnUpdateAmmo(SpectatedPawn.Get());
+
+	OnUpdateAbilities(AbilityDisplayInfos);
 }
 
 void USpectatorHudWidget::RefreshAbilities()

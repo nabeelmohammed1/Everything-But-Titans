@@ -56,6 +56,9 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Spectator")
     void OnSpectatedPawnChanged(APawn* NewPawn);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spectator")
+    void OnUpdateAbilities(const TArray<FAbilityDisplayInfo>& Abilities);
+
 private:
     void RefreshAbilities();
 	void BindToNewPawn(APawn* NewPawn);
