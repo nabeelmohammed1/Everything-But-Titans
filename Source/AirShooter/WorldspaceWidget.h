@@ -35,6 +35,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	float NameplateCheckInterval = 0.5f;
 
+	// How long the damage number stays alive (match your anim length)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float LifetimeDuration = 1.5f;
+
+	// The actor that was hit — set this when spawning so trace ignores them
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	AActor* HitActor = nullptr;
+
+	// Called after checks pass — implement the anim trigger in BP
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void OnVisibilityConfirmed();
+
 	//Nameplate related Functions
 
 	/** Cached list of other players — refreshed every few seconds. */
